@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Venmo" />
+    <title>Venmo</title>
+    <link rel="stylesheet" href="src/style.css" />
+    <link rel="manifest" href="manifest.json" />
+  </head>
+  <body>
+    <div id="app">
+
+      <!-- SCREEN 1: HOME -->
+      <div id="screen-home" class="screen">
+        <div class="venmo-header">
+          <span class="venmo-logo">venmo</span>
+          <button id="btn-new-tx" class="btn-plus">+</button>
+        </div>
+        <div class="feed-label">Friends & Family</div>
+        <div id="feed" class="feed"></div>
+      </div>
+
+      <!-- SCREEN 2: NEW TRANSACTION -->
+      <div id="screen-new-tx" class="screen">
+        <div class="nav-bar">
+          <button id="btn-back-home" class="btn-back">‹</button>
+          <span class="nav-title">Pay or Request</span>
+          <span></span>
+        </div>
+        <div class="form-body">
+          <div class="input-group">
+            <label>Venmo Profile URL</label>
+            <input id="input-venmo-url" type="url" placeholder="venmo.com/u/username" />
+            <p id="url-error" class="input-error"></p>
+          </div>
+          <div class="input-group">
+            <label>Amount</label>
+            <div class="amount-row">
+              <span class="dollar">$</span>
+              <input id="input-amount" type="number" placeholder="0.00" min="0" step="0.01" />
+            </div>
+          </div>
+          <div class="input-group">
+            <label>What's it for?</label>
+            <input id="input-note" type="text" placeholder="Add a note..." />
+          </div>
+          <div class="input-group">
+            <label>Profile Picture (Optional)</label>
+            <input type="file" id="input-photo" accept="image/*" />
+            <img id="photo-preview" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-top: 8px; display: none;" />
+          </div>
+          <div class="action-buttons">
+            <button id="btn-request" class="btn-request">Request</button>
+            <button id="btn-pay" class="btn-pay">Pay</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCREEN 3: TRANSACTION DETAIL -->
+      <div id="screen-tx-detail" class="screen">
+        <div class="nav-bar">
+          <button id="btn-back-from-detail" class="btn-back">‹</button>
+          <span class="nav-title">Payment</span>
+          <span></span>
+        </div>
+        <div class="detail-scroll">
+          <div class="detail-top-card">
+            <img id="detail-avatar" src="" alt="avatar" class="detail-avatar" />
+            <p id="detail-name" class="detail-name"></p>
+            <p id="detail-amount" class="detail-amount"></p>
+            <p id="detail-note" class="detail-note"></p>
+            <button class="btn-more-details-top">More details</button>
+          </div>
+          <button class="btn-pay-or-request">Pay or request</button>
+          <div class="detail-likes-card">
+            <p class="detail-section-label">Likes and Comments</p>
+            <div class="likes-row">
+              <span class="like-btn">
+                <svg class="like-icon" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                0
+              </span>
+              <span class="like-btn">
+                <svg class="like-icon" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.8">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                0
+              </span>
+            </div>
+          </div>
+          <div class="detail-info-card">
+            <div class="detail-row">
+              <span class="detail-row-label">Status</span>
+              <span class="detail-row-value bold">Complete</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Payment method</span>
+              <span class="detail-row-value">
+                <span class="venmo-v-badge">V</span> Venmo balance
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Transaction details</span>
+              <span class="detail-row-value bold" id="detail-time"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Paid to</span>
+              <span class="detail-row-value bold" id="detail-paid-to"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Type of transaction</span>
+              <span class="detail-row-value bold">Payments between friends</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Transaction ID</span>
+              <span class="detail-row-value bold">40001</span>
+            </div>
+          </div>
+          <div class="detail-help-card">
+            <span class="need-help">Need help?</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCREEN 4: CONFIRMATION -->
+      <div id="screen-confirmation" class="screen">
+        <div class="nav-bar">
+          <button id="btn-back-from-confirm" class="btn-back">‹</button>
+          <span class="nav-title">Payment</span>
+          <span></span>
+        </div>
+        <div class="detail-scroll">
+          <div class="detail-top-card">
+            <img id="confirm-avatar" src="" alt="avatar" class="detail-avatar" />
+            <p id="confirm-type" class="confirm-type"></p>
+            <p id="confirm-name" class="detail-name"></p>
+            <p id="confirm-username" class="detail-username"></p>
+            <p id="confirm-amount" class="detail-amount"></p>
+            <p id="confirm-note" class="detail-note"></p>
+            <button class="btn-pay-or-request-top">Pay or request</button>
+          </div>
+          <button class="btn-pay-or-request">Pay or request</button>
+          <div class="detail-likes-card">
+            <p class="detail-section-label">Likes and Comments</p>
+            <div class="likes-row">
+              <span class="like-btn">🤍 0</span>
+              <span class="like-btn">💬 0</span>
+            </div>
+          </div>
+          <div class="detail-info-card">
+            <div class="detail-row">
+              <span class="detail-row-label">Status</span>
+              <span class="detail-row-value bold">Complete</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Payment method</span>
+              <span class="detail-row-value">
+                <span class="venmo-v-badge">V</span> Venmo balance
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Transaction details</span>
+              <span class="detail-row-value bold" id="confirm-time"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Paid to</span>
+              <span class="detail-row-value bold" id="confirm-paid-to"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Type of transaction</span>
+              <span class="detail-row-value bold">Payments between friends</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row-label">Transaction ID</span>
+              <span class="detail-row-value bold">40001</span>
+            </div>
+          </div>
+          <div class="detail-help-card">
+            <span class="need-help">Need help?</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
