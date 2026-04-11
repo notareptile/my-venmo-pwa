@@ -34,19 +34,6 @@ function formatAmount(amount) {
   return `<span class="minus">−</span><span class="currency">$</span>${formatted}`
 }
 
-function parseVenmoURL(input) {
-  try {
-    let urlStr = input.trim()
-    if (!urlStr.startsWith('http')) urlStr = 'https://' + urlStr
-    const url = new URL(urlStr)
-    if (url.hostname === 'venmo.com' && url.pathname.startsWith('/u/')) {
-      const username = url.pathname.replace('/u/', '').replace(/\//g, '')
-      if (username.length > 0) return username
-    }
-  } catch {}
-  return null
-}
-
 // ─── Screen Navigation ────────────────────────────────────
 const screens = {
   home:         document.getElementById('screen-home'),
@@ -86,7 +73,8 @@ function renderFeed() {
 
 // ─── Home Screen ──────────────────────────────────────────
 document.getElementById('btn-new-tx').addEventListener('click', () => {
-  document.getElementById('input-venmo-url').value = ''
+  document.getElementById('input-username').value = ''
+  document.getElementById('input-display-name').value = ''
   document.getElementById('input-amount').value = ''
   document.getElementById('input-note').value = ''
   document.getElementById('url-error').textContent = ''
@@ -113,15 +101,16 @@ document.getElementById('input-photo').addEventListener('change', (e) => {
 document.getElementById('btn-back-home').addEventListener('click', () => showScreen('home'))
 
 function handleAction(type) {
-  const urlInput = document.getElementById('input-venmo-url').value.trim()
+  const usernameInput = document.getElementById('input-username').value.trim()
+  const displayNameInput = document.getElementById('input-display-name').value.trim()
   const amount   = parseFloat(document.getElementById('input-amount').value)
   const note     = document.getElementById('input-note').value.trim() || 'Payment'
   const errEl    = document.getElementById('url-error')
 
-  const username = parseVenmoURL(urlInput)
+  const username = usernameInput.replace(/^@/, '')
 
   if (!username) {
-    errEl.textContent = 'Please enter a valid Venmo profile URL (venmo.com/u/username)'
+    errEl.textContent = 'Please enter a username'
     return
   }
   if (isNaN(amount) || amount <= 0) {
@@ -131,7 +120,7 @@ function handleAction(type) {
 
   errEl.textContent = ''
 
-  const displayName = username
+  const displayName = displayNameInput || username
   const avatar      = uploadedPhotoDataURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=008CFF&color=fff&size=128`
   const timeStr     = new Date().toLocaleString('en-US', {
     month: 'long', day: 'numeric', year: 'numeric',
@@ -139,7 +128,7 @@ function handleAction(type) {
   })
 
   const tx = {
-    id: Date.now().toString(),
+    id: '4512007650679777383',
     displayName,
     username: `@${username}`,
     avatar,
@@ -166,7 +155,7 @@ function populateTxDetail(tx) {
   document.getElementById('detail-name').textContent      = tx.displayName
   document.getElementById('detail-amount').innerHTML      = formatAmount(tx.amount)
   document.getElementById('detail-note').textContent      = `"${tx.note}"`
-  document.getElementById('detail-time').textContent      = `${tx.time} · 🔒 Private`
+  document.getElementById('detail-time').innerHTML      = `${tx.time} · <span class="privacy-blue">Private</span>`
   document.getElementById('detail-paid-to').textContent   = tx.username
 }
 
@@ -181,7 +170,7 @@ function populateConfirmation(tx) {
   document.getElementById('confirm-username').textContent  = tx.username
   document.getElementById('confirm-amount').innerHTML      = formatAmount(tx.amount)
   document.getElementById('confirm-note').textContent      = `"${tx.note}"`
-  document.getElementById('confirm-time').textContent      = `${tx.time} · 🔒 Private`
+  document.getElementById('confirm-time').innerHTML      = `${tx.time} · <span class="privacy-blue">Private</span>`
   document.getElementById('confirm-paid-to').textContent   = tx.username
   document.getElementById('confirm-type').textContent      = tx.type === 'pay' ? 'Payment Sent!' : 'Request Sent!'
 }
