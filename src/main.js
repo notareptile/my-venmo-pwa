@@ -4,7 +4,7 @@ const transactions = [
     id: 'hardcoded-1',
     displayName: 'Marcus Rashford',
     username: '@marcusrashford',
-    avatar: 'https://ui-avatars.com/api/?name=Marcus+Rashford&background=008CFF&color=fff&size=128',
+    avatar: 'https://ui-avatars.com/api/?name=Marcus+Rashford&background=f9f9fa&color=6c6f75&size=128',
     amount: '5.00',
     note: '⚽ good game bro',
     type: 'pay',
@@ -17,7 +17,7 @@ const transactions = [
     id: 'hardcoded-2',
     displayName: 'William Kink',
     username: '@wkink',
-    avatar: 'https://ui-avatars.com/api/?name=William+Kink&background=008CFF&color=fff&size=128',
+    avatar: 'https://ui-avatars.com/api/?name=William+Kink&background=f9f9fa&color=6c6f75&size=128',
     amount: '10.00',
     note: 'hello will',
     type: 'pay',
@@ -97,35 +97,52 @@ document.getElementById('input-photo').addEventListener('change', (e) => {
   }
 })
 
-// ─── New Transaction ──────────────────────────────────────
-document.getElementById('btn-back-home').addEventListener('click', () => showScreen('home'))
-
 function handleAction(type) {
-  const usernameInput = document.getElementById('input-username').value.trim()
-  const displayNameInput = document.getElementById('input-display-name').value.trim()
-  const amount   = parseFloat(document.getElementById('input-amount').value)
-  const note     = document.getElementById('input-note').value.trim() || 'Payment'
-  const errEl    = document.getElementById('url-error')
+  const usernameInput = document.getElementById('input-username').value.trim();
+  const displayNameInput = document.getElementById('input-display-name').value.trim();
+  const amount = parseFloat(document.getElementById('input-amount').value);
+  const note = document.getElementById('input-note').value.trim() || 'Payment';
+  const errEl = document.getElementById('url-error');
 
-  const username = usernameInput.replace(/^@/, '')
+  // New: Get initials input
+  const initialsInput = document.getElementById('input-initials').value.trim().toUpperCase();
+
+  const username = usernameInput.replace(/^@/, '');
 
   if (!username) {
-    errEl.textContent = 'Please enter a username'
-    return
+    errEl.textContent = 'Please enter a username';
+    return;
   }
   if (isNaN(amount) || amount <= 0) {
-    errEl.textContent = 'Please enter a valid amount'
-    return
+    errEl.textContent = 'Please enter a valid amount';
+    return;
   }
 
-  errEl.textContent = ''
+  errEl.textContent = '';
 
-  const displayName = displayNameInput || username
-  const avatar      = uploadedPhotoDataURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=008CFF&color=fff&size=128`
-  const timeStr     = new Date().toLocaleString('en-US', {
-    month: 'long', day: 'numeric', year: 'numeric',
-    hour: 'numeric', minute: '2-digit', hour12: true
-  })
+  const displayName = displayNameInput || username;
+
+  // ─── Avatar Priority Logic ────────────────────────────────
+  let avatar;
+  if (uploadedPhotoDataURL) {
+    // 1. Use uploaded photo if it exists
+    avatar = uploadedPhotoDataURL;
+  } else if (initialsInput) {
+    // 2. Use initials if photo is missing but initials are provided
+    avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initialsInput)}&background=f9f9fa&color=6c6f75&size=128&font-size=0.45`;
+  } else {
+    // 3. Fallback to username if both are missing
+    avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=f9f9fa&color=6c6f75&size=128`;
+  }
+
+  const timeStr = new Date().toLocaleString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
 
   const tx = {
     id: '4512007650679777383',
@@ -136,12 +153,20 @@ function handleAction(type) {
     note,
     type,
     time: timeStr
+  };
+
+  // ─── Cleanup ─────────────────────────────────────────────
+  // Clear the initials and photo data for the next transaction
+  document.getElementById('input-initials').value = '';
+  uploadedPhotoDataURL = null;
+  if (document.getElementById('photo-preview')) {
+    document.getElementById('photo-preview').style.display = 'none';
   }
 
-  transactions.unshift(tx)
-  renderFeed()
-  populateConfirmation(tx)
-  showScreen('confirmation')
+  transactions.unshift(tx);
+  renderFeed();
+  populateConfirmation(tx);
+  showScreen('confirmation');
 }
 
 document.getElementById('btn-pay').addEventListener('click', () => handleAction('pay'))
